@@ -1,0 +1,151 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Election
+{
+private:
+    vector<vector<int>> votes;
+    int regions;
+    int candidates;
+
+    void regionWinner(int r)
+    {
+        int maxVotes = votes[r][0];
+        int winner = 0;
+        bool tie = false;
+
+        for(int i = 1; i < candidates; i++)
+        {
+            if(votes[r][i] > maxVotes)
+            {
+                maxVotes = votes[r][i];
+                winner = i;
+                tie = false;
+            }
+            else if(votes[r][i] == maxVotes)
+            {
+                tie = true;
+            }
+        }
+
+        cout << "\nRegion " << r + 1 << " : ";
+
+        if(maxVotes == 0)
+            cout << "No votes cast";
+        else if(tie)
+            cout << "Tie";
+        else
+            cout << "Candidate " << winner + 1 << " wins";
+    }
+
+public:
+    static int totalRegions;
+
+    Election(int r, int c)
+    {
+        regions = r;
+        candidates = c;
+        totalRegions = r;
+
+        votes.resize(regions, vector<int>(candidates));
+    }
+
+    void getVotes()
+    {
+        cout << "Enter votes:\n";
+
+        for(int i = 0; i < regions; i++)
+        {
+            for(int j = 0; j < candidates; j++)
+            {
+                cin >> votes[i][j];
+
+                if(votes[i][j] < 0)
+                {
+                    cout << "Invalid input! Setting vote to 0\n";
+                    votes[i][j] = 0;
+                }
+            }
+        }
+    }
+
+    void displayRegionResults()
+    {
+        cout << "\n--- Regional Results ---\n";
+
+        for(int i = 0; i < regions; i++)
+        {
+            regionWinner(i);
+        }
+    }
+
+    void overallWinner()
+    {
+        vector<int> total(candidates, 0);
+
+        for(int i = 0; i < regions; i++)
+        {
+            for(int j = 0; j < candidates; j++)
+            {
+                total[j] += votes[i][j];
+            }
+        }
+
+        int maxVotes = total[0];
+        int winner = 0;
+        bool tie = false;
+
+        for(int i = 1; i < candidates; i++)
+        {
+            if(total[i] > maxVotes)
+            {
+                maxVotes = total[i];
+                winner = i;
+                tie = false;
+            }
+            else if(total[i] == maxVotes)
+            {
+                tie = true;
+            }
+        }
+
+        cout << "\n\n--- Overall Result ---\n";
+
+        if(maxVotes == 0)
+            cout << "No votes recorded.";
+        else if(tie)
+            cout << "Overall Election Tie";
+        else
+            cout << "Overall Winner : Candidate " << winner + 1;
+
+        cout << "\nTotal Regions : " << totalRegions;
+    }
+};
+
+int Election::totalRegions = 0;
+
+int main()
+{
+    int r, c;
+
+    cout << "Enter number of regions: ";
+    cin >> r;
+
+    cout << "Enter number of candidates: ";
+    cin >> c;
+
+    if(r <= 0 || c <= 0)
+    {
+        cout << "Invalid input!";
+        return 0;
+    }
+
+    Election e(r, c);
+
+    e.getVotes();
+    e.displayRegionResults();
+    e.overallWinner();
+
+    return 0;
+}
