@@ -1,0 +1,177 @@
+#include <iostream>
+using namespace std;
+
+class AcademicRecord {
+private:
+    string regNo;
+    int score;
+
+public:
+    static int totalStudents;
+
+    AcademicRecord() {
+        totalStudents++;
+    }
+
+    void input() {
+        cout << "Register No: ";
+        cin >> regNo;
+        cout << "Marks: ";
+        cin >> score;
+    }
+
+    int getScore() {
+        return score;
+    }
+
+    string getRegNo() {
+        return regNo;
+    }
+};
+
+int AcademicRecord::totalStudents = 0;
+
+class UniversityAnalytics {
+private:
+    string departmentName;
+    AcademicRecord *records;
+    int count;
+
+public:
+    UniversityAnalytics() {
+        records = NULL;
+        count = 0;
+    }
+
+    void createDepartment() {
+        cout << "\nDepartment Name: ";
+        cin >> departmentName;
+
+        cout << "Number of Students: ";
+        cin >> count;
+
+        if (count > 0) {
+            records = new AcademicRecord[count];
+
+            for (int i = 0; i < count; i++) {
+                cout << "\nStudent " << i + 1 << endl;
+                records[i].input();
+            }
+        }
+    }
+
+    void displayTopper() {
+        if (count == 0) {
+            cout << departmentName
+                 << " -> No Students\n";
+            return;
+        }
+
+        int top = 0;
+
+        for (int i = 1; i < count; i++) {
+            if (records[i].getScore() >
+                records[top].getScore())
+                top = i;
+        }
+
+        cout << departmentName
+             << " Topper: "
+             << records[top].getRegNo()
+             << " (" << records[top].getScore()
+             << ")\n";
+    }
+
+    double passRate() {
+        if (count == 0)
+            return 0;
+
+        int pass = 0;
+
+        for (int i = 0; i < count; i++) {
+            if (records[i].getScore() >= 40)
+                pass++;
+        }
+
+        return (pass * 100.0) / count;
+    }
+
+    AcademicRecord getDepartmentTopper() {
+        int top = 0;
+
+        for (int i = 1; i < count; i++) {
+            if (records[i].getScore() >
+                records[top].getScore())
+                top = i;
+        }
+
+        return records[top];
+    }
+
+    int getCount() {
+        return count;
+    }
+
+    string getDeptName() {
+        return departmentName;
+    }
+
+    ~UniversityAnalytics() {
+        delete[] records;
+    }
+};
+
+int main() {
+
+    int departments;
+
+    cout << "Enter Number of Departments: ";
+    cin >> departments;
+
+    UniversityAnalytics dept[departments];
+
+    for (int i = 0; i < departments; i++)
+        dept[i].createDepartment();
+
+    bool first = true;
+    AcademicRecord universityTopper;
+
+    cout << "\n===== ANALYSIS REPORT =====\n";
+
+    for (int i = 0; i < departments; i++) {
+
+        dept[i].displayTopper();
+
+        cout << "Pass Percentage: "
+             << dept[i].passRate()
+             << "%\n\n";
+
+        if (dept[i].getCount() == 0)
+            continue;
+
+        AcademicRecord temp =
+            dept[i].getDepartmentTopper();
+
+        if (first ||
+            temp.getScore() >
+            universityTopper.getScore()) {
+
+            universityTopper = temp;
+            first = false;
+        }
+    }
+
+    if (!first) {
+        cout << "University Topper: "
+             << universityTopper.getRegNo()
+             << " ("
+             << universityTopper.getScore()
+             << ")\n";
+    }
+
+    cout << "\nTotal Students Processed: "
+         << AcademicRecord::totalStudents
+         << endl;
+
+    return 0;
+}
